@@ -7,7 +7,7 @@ SeyedArmin HosseiniLargani
 > GH1042143
 > <br>
 <br/>
-A real-time Business Intelligence Dashboard for **FreshMart Berlin**, a fictional 10-branch grocery chain. Built with **Flask** (Python) and **Chart.js** (vanilla JS), the dashboard presents seven interactive KPI modules across sales, inventory, customer footfall, product categories, branch comparison, profitability, and waste/shrinkage.
+A real-time Business Intelligence Dashboard for FreshMart Berlin, a fictional 10-branch grocery chain. Built with Flask (Python) and Chart.js (vanilla JS), the dashboard presents seven interactive KPI modules across sales, inventory, customer footfall, product categories, branch comparison, profitability, and waste/shrinkage.
 
 ---
 
