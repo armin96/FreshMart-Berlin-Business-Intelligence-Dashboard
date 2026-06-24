@@ -1,12 +1,17 @@
 # FreshMart Berlin — Business Intelligence Dashboard
 
 > **M608 Business Project in Computer Science** · Gisma University of Applied Sciences
-
+> <br><br>
+SeyedArmin HosseiniLargani
+> <br>
+> GH1042143
+> <br>
+<br/>
 A real-time Business Intelligence Dashboard for **FreshMart Berlin**, a fictional 10-branch grocery chain. Built with **Flask** (Python) and **Chart.js** (vanilla JS), the dashboard presents seven interactive KPI modules across sales, inventory, customer footfall, product categories, branch comparison, profitability, and waste/shrinkage.
 
 ---
 
-## 📸 Features
+##  Features
 
 | Module | Charts |
 |--------|--------|
@@ -24,14 +29,14 @@ A **live ticker** polls `/api/live` every 5 seconds to simulate a real-time data
 
 ---
 
-## 🏙️ The 10 Berlin Branches
+## The 10 Berlin Branches
 
 Mitte · Prenzlauer Berg · Kreuzberg · Charlottenburg · Friedrichshain  
 Schöneberg · Neukölln · Spandau · Steglitz · Marzahn
 
 ---
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```
 pr22/
@@ -55,7 +60,7 @@ pr22/
 
 ---
 
-## ⚙️ Setup & Run
+##  Setup & Run
 
 ### Prerequisites
 - Python 3.9+
@@ -103,7 +108,7 @@ Open your browser at **http://localhost:5000**
 
 ---
 
-## 📊 Dataset Description
+##  Dataset Description
 
 All data is **synthetically generated** using `numpy` and `pandas` to simulate realistic patterns:
 
@@ -124,7 +129,7 @@ All data is **synthetically generated** using `numpy` and `pandas` to simulate r
 
 ---
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -136,6 +141,6 @@ All data is **synthetically generated** using `numpy` and `pandas` to simulate r
 
 ---
 
-## 📄 License
+##  License
 
-Academic project — Gisma University of Applied Sciences, 2024.
+Academic project — Gisma University of Applied Sciences, 2026.
