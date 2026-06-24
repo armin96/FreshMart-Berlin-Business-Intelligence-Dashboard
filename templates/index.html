@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FreshMart Berlin — Business Intelligence Dashboard</title>
+  <meta name="description"
+    content="Real-time business intelligence dashboard for FreshMart Berlin — tracking sales, inventory, footfall, profitability, and sustainability across 10 Berlin branches." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <!-- Chart.js Adapter for time scales -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+
+<body>
+
+  <!-- ── Sidebar ─────────────────────────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🛒</div>
+      <div class="brand-text">
+        <span class="brand-name">FreshMart</span>
+        <span class="brand-sub">Berlin BI</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#overview" class="nav-item active" data-section="overview" id="nav-overview">
+        <span class="nav-icon">📊</span><span class="nav-label">Overview</span>
+      </a>
+      <a href="#sales" class="nav-item" data-section="sales" id="nav-sales">
+        <span class="nav-icon">💶</span><span class="nav-label">Sales & Revenue</span>
+      </a>
+      <a href="#inventory" class="nav-item" data-section="inventory" id="nav-inventory">
+        <span class="nav-icon">📦</span><span class="nav-label">Inventory</span>
+      </a>
+      <a href="#footfall" class="nav-item" data-section="footfall" id="nav-footfall">
+        <span class="nav-icon">🚶</span><span class="nav-label">Footfall</span>
+      </a>
+      <a href="#categories" class="nav-item" data-section="categories" id="nav-categories">
+        <span class="nav-icon">🏷️</span><span class="nav-label">Categories</span>
+      </a>
+      <a href="#branches" class="nav-item" data-section="branches" id="nav-branches">
+        <span class="nav-icon">🗺️</span><span class="nav-label">Branches</span>
+      </a>
+      <a href="#profitability" class="nav-item" data-section="profitability" id="nav-profitability">
+        <span class="nav-icon">📈</span><span class="nav-label">Profitability</span>
+      </a>
+      <a href="#waste" class="nav-item" data-section="waste" id="nav-waste">
+        <span class="nav-icon">♻️</span><span class="nav-label">Waste</span>
+      </a>
+      <a href="#employees" class="nav-item" data-section="employees" id="nav-employees">
+        <span class="nav-icon">👥</span><span class="nav-label">Employees</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="live-dot-wrapper">
+        <span class="live-dot"></span>
+        <span class="live-label">Live Data Feed</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main ────────────────────────────────────────────────────────────────── -->
+  <main class="main" id="main">
+
+    <!-- Header -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+        <div class="topbar-title">
+          <h1 id="section-title">Overview</h1>
+          <p class="topbar-subtitle" id="section-subtitle">All branches · Last 30 days</p>
+        </div>
+      </div>
+      <div class="topbar-controls">
+        <!-- Branch Selector -->
+        <div class="control-group">
+          <label for="branchSelect" class="control-label">Branch</label>
+          <select id="branchSelect" class="control-select">
+            <option value="all">All Branches</option>
+            {% for branch in branches %}
+            <option value="{{ branch }}">{{ branch }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <!-- Period Selector -->
+        <div class="control-group">
+          <label for="periodSelect" class="control-label">Period</label>
+          <select id="periodSelect" class="control-select">
+            <option value="7d">Last 7 days</option>
+            <option value="30d" selected>Last 30 days</option>
+            <option value="90d">Last 90 days</option>
+            <option value="365d">Last 12 months</option>
+            <option value="all">All time</option>
+          </select>
+        </div>
+        <!-- Last updated -->
+        <div class="last-updated" id="lastUpdated">
+          <span class="update-dot"></span>
+          <span id="updateTime">--:--:--</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Live ticker bar -->
+    <div class="ticker-bar" id="tickerBar">
+      <span class="ticker-icon">⚡</span>
+      <span id="tickerText">Connecting to live feed…</span>
+    </div>
+
+    <!-- Content area -->
+    <div class="content" id="content">
+
+      <!-- ── Overview section ─────────────────────────────────────────────── -->
+      <section class="dashboard-section active" id="overview" data-title="Overview">
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid" id="kpiGrid">
+          <div class="kpi-card" id="kpi-revenue">
+            <div class="kpi-icon" style="background:linear-gradient(135deg,#14b8a6,#0d9488)">💶</div>
+            <div class="kpi-body">
+              <div class="kpi-label">Total Revenue</div>
+              <div class="kpi-value" id="kpiRevenue"><span class="skeleton-line"></span></div>
+              <div class="kpi-change" id="kpiRevenueChange"></div>
+            </div>
+          </div>
+          <div class="kpi-card" id="kpi-margin">
+            <div class="kpi-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">📈</div>
+            <div class="kpi-body">
+              <div class="kpi-label">Gross Margin</div>
+              <div class="kpi-value" id="kpiMargin"><span class="skeleton-line"></span></div>
+              <div class="kpi-change" id="kpiMarginSub" style="color:#94a3b8"></div>
+            </div>
+          </div>
+          <div class="kpi-card" id="kpi-footfall">
+            <div class="kpi-icon" style="background:linear-gradient(135deg,#f97316,#ea6c10)">🚶</div>
+            <div class="kpi-body">
+              <div class="kpi-label">Customer Footfall</div>
+              <div class="kpi-value" id="kpiFootfall"><span class="skeleton-line"></span></div>
+              <div class="kpi-change" id="kpiFootfallSub" style="color:#94a3b8"></div>
+            </div>
+          </div>
+          <div class="kpi-card" id="kpi-units">
+            <div class="kpi-icon" style="background:linear-gradient(135deg,#ec4899,#db2777)">🛍️</div>
+            <div class="kpi-body">
+              <div class="kpi-label">Units Sold</div>
+              <div class="kpi-value" id="kpiUnits"><span class="skeleton-line"></span></div>
+              <div class="kpi-change" style="color:#94a3b8" id="kpiUnitsSub"></div>
+            </div>
+          </div>
+          <div class="kpi-card" id="kpi-waste">
+            <div class="kpi-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)">♻️</div>
+            <div class="kpi-body">
+              <div class="kpi-label">Waste Rate</div>
+              <div class="kpi-value" id="kpiWaste"><span class="skeleton-line"></span></div>
+              <div class="kpi-change" id="kpiWasteSub" style="color:#94a3b8"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overview charts row -->
+        <div class="chart-row">
+          <div class="chart-card chart-card--wide">
+            <div class="chart-header">
+              <h2 class="chart-title">Revenue Overview</h2>
+              <div class="chart-controls">
+                <button class="chip active" data-granularity="daily" id="gran-daily">Daily</button>
+                <button class="chip" data-granularity="weekly" id="gran-weekly">Weekly</button>
+                <button class="chip" data-granularity="monthly" id="gran-monthly">Monthly</button>
+              </div>
+            </div>
+            <div class="chart-wrap"><canvas id="overviewSalesChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <h2 class="chart-title">Category Split</h2>
+            </div>
+            <div class="chart-wrap chart-wrap--sm"><canvas id="overviewDonutChart"></canvas></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ── Sales & Revenue ───────────────────────────────────────────────── -->
+      <section class="dashboard-section" id="sales" data-title="Sales & Revenue">
+        <div class="chart-row">
+          <div class="chart-card chart-card--full">
+            <div class="chart-header">
+              <h2 class="chart-title">Revenue · COGS · Margin</h2>
+              <div class="chart-controls">
+                <button class="chip active" data-granularity="daily">Daily</button>
+                <button class="chip" data-granularity="weekly">Weekly</button>
+                <button class="chip" data-granularity="monthly">Monthly</button>
+              </div>
+            </div>
+            <div class="chart-wrap chart-wrap--lg"><canvas id="salesLineChart"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-row">
+          <div class="chart-card chart-card--full">
+            <div class="chart-header">
+              <h2 class="chart-title">Daily Revenue Bar</h2>
+            </div>
+            <div class="chart-wrap chart-wrap--lg"><canvas id="salesBarChart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Inventory ─────────────────────────────────────────────────────── -->
+      <section class="dashboard-section" id="inventory" data-title="Inventory & Stock Alerts">
+        <div class="chart-row">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h2 class="chart-title">Avg Stock by Category</h2>
+            </div>
+            <div class="chart-wrap"><canvas id="invBarChart"></canvas></div>
+          </div>
+          <div class="chart-card chart-card--wide">
+            <div class="chart-header">
+              <h2 class="chart-title">⚠️ Low-Stock Alerts</h2>
+              <span class="badge" id="lowStockBadge">—</span>
+            </div>
+            <div class="table-wrap" id="lowStockTable">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Branch</th>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="lowStockBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Footfall ──────────────────────────────────────────────────────── -->
+      <section class="dashboard-section" id="footfall" data-title="Customer Footfall">
+        <div class="chart-row">
+          <div class="chart-card chart-card--full">
+            <div class="chart-header">
+              <h2 class="chart-title">Daily Visitor Count</h2>
+              <span class="kpi-badge" id="peakHourBadge"></span>
+            </div>
+            <div class="chart-wrap chart-wrap--lg"><canvas id="footfallAreaChart"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-row">
+          <div class="chart-card chart-card--full">
+            <div class="chart-header">
+              <h2 class="chart-title">Footfall Heatmap — Hour vs Day of Week</h2>
+            </div>
+            <div id="heatmapContainer" class="heatmap-container"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Categories ────────────────────────────────────────────────────── -->
+      <section class="dashboard-section" id="categories" data-title="Product Category Performance">
+        <div class="chart-row">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h2 class="chart-title">Revenue by Category</h2>
+            </div>
+            <div class="chart-wrap"><canvas id="catDonutChart"></canvas></div>
+          </div>
+          <div class="chart-card chart-card--wide">
+            <div class="chart-header">
+              <h2 class="chart-title">Units Sold & Margin by Category</h2>
+            </div>
+            <div class="chart-wrap"><canvas id="catBarChart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Branches ──────────────────────────────────────────────────────── -->
+      <section class="dashboard-section" id="branches" data-title="Branch Comparison">
+        <div class="chart-row">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h2 class="chart-title">Multi-KPI Radar</h2>
+            </div>
+            <div class="chart-wrap"><canvas id="branchRadarChart"></canvas></div>
+          </div>
+          <div class="chart-card chart-card--wide">
+            <div class="chart-header">
+              <h2 class="chart-title">Revenue Ranking</h2>
+            </div>
+            <div class="chart-wrap"><canvas id="branchBarChart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Profitability ─────────────────────────────────────────────────── -->
+      <section class="dashboard-section" id="profitability" data-title="Profitability & Margins">
+        <div class="chart-row">
+          <div class="chart-card chart-card--full">
+            <div class="chart-header">
+              <h2 class="chart-title">Revenue · COGS · Margin per Branch</h2>
+            </div>
+            <div class="chart-wrap chart-wrap--lg"><canvas id="profitStackedChart"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-row">
+          <div class="chart-card chart-card--full">
+            <div class="chart-header">
+              <h2 class="chart-title">Margin % per Branch</h2>
+            </div>
+            <div class="chart-wrap"><canvas id="profitMarginChart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Waste ─────────────────────────────────────────────────────────── -->
+      <section class="dashboard-section" id="waste" data-title="Waste & Shrinkage">
+        <div class="chart-row">
+          <div class="chart-card chart-card--full">
+            <div class="chart-header">
+              <h2 class="chart-title">Daily Waste Value (€)</h2>
+            </div>
+            <div class="chart-wrap chart-wrap--lg"><canvas id="wasteTrendChart"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-row">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h2 class="chart-title">Waste % by Category</h2>
+            </div>
+            <div class="chart-wrap"><canvas id="wasteCatChart"></canvas></div>
+          </div>
+          <div class="chart-card chart-card--wide">
+            <div class="chart-header">
+              <h2 class="chart-title">Waste by Branch</h2>
+            </div>
+            <div class="chart-wrap"><canvas id="wasteBranchChart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Employees ──────────────────────────────────────────────────────── -->
+      <section class="dashboard-section" id="employees" data-title="Employee Performance">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">👥</div>
+            <div class="kpi-body">
+              <div class="kpi-label">Avg Daily Staff (All Branches)</div>
+              <div class="kpi-value" id="empAvgStaff"><span class="skeleton-line"></span></div>
+              <div class="kpi-change" style="color:#94a3b8">staff members/day</div>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:linear-gradient(135deg,#14b8a6,#0d9488)">⏱️</div>
+            <div class="kpi-body">
+              <div class="kpi-label">Total Hours Worked</div>
+              <div class="kpi-value" id="empTotalHours"><span class="skeleton-line"></span></div>
+              <div class="kpi-change" style="color:#94a3b8">in selected period</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-row">
+          <div class="chart-card chart-card--full">
+            <div class="chart-header"><h2 class="chart-title">Daily Staff Count Trend</h2></div>
+            <div class="chart-wrap chart-wrap--lg"><canvas id="empStaffTrendChart"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-row">
+          <div class="chart-card chart-card--full">
+            <div class="chart-header"><h2 class="chart-title">Revenue per Employee by Branch (€)</h2></div>
+            <div class="chart-wrap chart-wrap--lg"><canvas id="empRevPerStaffChart"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-row">
+          <div class="chart-card chart-card--full">
+            <div class="chart-header">
+              <h2 class="chart-title">Revenue per Staff Hour (€/hr)</h2>
+              <span class="kpi-badge">Higher = More Efficient</span>
+            </div>
+            <div class="chart-wrap"><canvas id="empRevPerHourChart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /content -->
+  </main>
+
+  <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>
