@@ -7,14 +7,15 @@ SeyedArmin HosseiniLargani
 > GH1042143
 > <br>
 <br/>
-A real-time Business Intelligence Dashboard for FreshMart Berlin, a fictional 10-branch grocery chain. Built with Flask (Python) and Chart.js (vanilla JS), the dashboard presents seven interactive KPI modules across sales, inventory, customer footfall, product categories, branch comparison, profitability, and waste/shrinkage.
+
+A real-time Business Intelligence Dashboard for FreshMart Berlin, a fictional 10-branch grocery chain. Built with Flask (Python) and Chart.js (vanilla JS), the dashboard presents nine interactive KPI modules across sales, inventory, customer footfall, product categories, branch comparison, profitability, waste/shrinkage, and employee performance.
 
 ---
 
 ##  Features
 
-| Module | Charts |
-|--------|--------|
+| Module | Charts / Visual Elements |
+|--------|--------------------------|
 | **Overview** | KPI summary cards, revenue line chart, category donut |
 | **Sales & Revenue** | Revenue · COGS · Margin line + daily bar chart |
 | **Inventory** | Stock levels by category, low-stock alert table |
@@ -23,13 +24,14 @@ A real-time Business Intelligence Dashboard for FreshMart Berlin, a fictional 10
 | **Branch Comparison** | Multi-KPI radar (normalised), revenue ranking bar |
 | **Profitability** | Stacked COGS/Margin per branch, margin % bar |
 | **Waste & Shrinkage** | Daily waste trend, waste % by category, waste by branch |
+| **Employee Performance** | Staffing efficiency, revenue per employee, revenue per staff hour |
 
 All charts update in real-time when the **branch** or **period** filter changes.  
 A **live ticker** polls `/api/live` every 5 seconds to simulate a real-time data feed.
 
 ---
 
-## The 10 Berlin Branches
+##  The 10 Berlin Branches
 
 Mitte · Prenzlauer Berg · Kreuzberg · Charlottenburg · Friedrichshain  
 Schöneberg · Neukölln · Spandau · Steglitz · Marzahn
@@ -86,7 +88,7 @@ Open your browser at **http://localhost:5000**
 
 ---
 
-## 🔌 REST API Endpoints
+##  REST API Endpoints
 
 | Endpoint | Parameters | Description |
 |----------|-----------|-------------|
@@ -108,7 +110,7 @@ Open your browser at **http://localhost:5000**
 
 ---
 
-##  Dataset Description
+## Dataset Description
 
 All data is **synthetically generated** using `numpy` and `pandas` to simulate realistic patterns:
 
